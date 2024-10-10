@@ -122,28 +122,33 @@ const Page: React.FC = () => {
         handleCloseModal();
     };
 
+    
     const nouvelleDevis = useMemo(() => ({
         date: new Date().toLocaleDateString(),
-        products: articlesPanier.map((article) => ({
-            id: article.id,
-            reference: article.id.toString(),
-            description: article.description || "",
-            quantity: quantitesPanier[article.id] || 0,
-            price: article.price ?? 0,
-            supplierPrice: article.supplierPrice ?? 0,
-            discount: remises[article.id] ?? 0,
-            finalPricePerUnit: (article.price ?? 0) * (1 - (remises[article.id] ?? 0) / 100),
-            priceAfterDiscount: (article.price ?? 0) * (1 - (remises[article.id] ?? 0) / 100),
-            totalPrice: (article.price ?? 0) * (quantitesPanier[article.id] || 0) * (1 - (remises[article.id] ?? 0) / 100),
-            remize: remises[article.id] ?? null,
-        })),
-        amountAfterDiscount: montantTotal,
-        amountPaid: montantPartiel,
-        amountRemaining: montantTotal - montantPartiel,
+        products: articlesPanier.map((article) => {
+            const quantity = quantitesPanier[article.id] || 0;
+            const price = article.price ?? 0;
+            const discount = remises[article.id] ?? 0;
+    
+            return {
+                id: article.id,
+                reference: `P-${article.id.toString().padStart(4, "0")}`,
+                description: article.description || "N/A",
+                quantity: quantity,
+                price: price.toFixed(2),
+                supplierPrice: article.supplierPrice?.toFixed(2) || "0.00",
+                discount: discount,
+                finalPricePerUnit: (price * (1 - discount / 100)).toFixed(2),
+                priceAfterDiscount: (price * (1 - discount / 100)).toFixed(2),
+                totalPrice: (price * quantity * (1 - discount / 100)).toFixed(2),
+                remize: remises[article.id] ?? null,
+            };
+        }),
+        amountAfterDiscount: montantTotal.toFixed(2),
+        amountPaid: montantPartiel.toFixed(2),
+        amountRemaining: (montantTotal - montantPartiel).toFixed(2),
     }), [articlesPanier, quantitesPanier, remises, montantTotal, montantPartiel]);
-
-
-
+    
 
 
     const enregistrerDevis = useCallback(async () => {
@@ -156,60 +161,51 @@ const Page: React.FC = () => {
                 totalAmountToPay: montantTotal,
                 amountRemaining: montantTotal - montantPartiel,
             });
-
+    
             // Récupérer l'ID du client créé
             const createdClientId = clientResponse.id ?? 0;
-
-            // Créer laDevis après la création du client
+    
+            // Créer le devis
             const Devis: Devis = {
-
                 client: {
                     id: createdClientId,
                     name: nomClient,
                     address: adresseClient,
                     phone: telephoneClient,
-                }, // Utiliser client au lieu de clientId
-                date: new Date().toISOString(),
-                amountBeforeDiscount: montantTotalAvantRemise,
-                amountAfterDiscount: montantTotal,
+                },
+                date: new Date(),
+                totalAmount: montantTotal,
                 amountPaid: montantPartiel,
                 amountRemaining: montantTotal - montantPartiel,
-                totalAmount: montantTotal,
-                clientId: createdClientId,
+                amountAfterDiscount: montantTotal,
                 products: articlesPanier.map((article) => {
                     const quantity = quantitesPanier[article.id] || 0;
                     const price = article.price ?? 0;
-                    const discount = remises[article.id] ?? 0; // Utiliser "discount" au lieu de "remize"
-
+                    const discount = remises[article.id] ?? 0;
+    
                     return {
                         id: article.id,
-                        reference: article.reference,
-                        description: article.description,
+                        reference: `P-${article.id.toString().padStart(4, "0")}`,
+                        description: article.description || "N/A",
                         quantity: quantity,
-                        price: price,
-                        supplierPrice: article.supplierPrice ?? 0,
+                        price: price.toFixed(2),
+                        supplierPrice: article.supplierPrice?.toFixed(2) || "0.00",
                         discount: discount,
-                        totalPrice: price * quantity * (1 - discount / 100),
-                        product: article, // Add the product property
+                        totalPrice: (price * quantity * (1 - discount / 100)).toFixed(2),
+                        product: article,
                     };
                 }),
             };
-
-
-
-
-            // Enregistrement de laDevis dans la base de données
-            console.log("Devis envoyée à la base de données ", Devis);
+    
+            // Enregistrement du devis
+            console.log("Devis envoyé à la base de données ", Devis);
             await createDevis(Devis);
-
-
-
-            // Afficher un message de succès
-            Swal.fire("Succès", "Devis enregistrée avec succès", "success");
+    
+            // Message de succès
+            Swal.fire("Succès", "Devis enregistré avec succès", "success");
         } catch (error) {
-            // Afficher un message d'erreur
-            console.error("Erreur lors de l'enregistrement de laDevis:", error);
-            Swal.fire("Erreur", "Erreur lors de l'enregistrement de laDevis", "error");
+            console.error("Erreur lors de l'enregistrement du devis:", error);
+            Swal.fire("Erreur", "Erreur lors de l'enregistrement du devis", "error");
         }
     }, [
         nomClient,
@@ -217,182 +213,126 @@ const Page: React.FC = () => {
         telephoneClient,
         articlesPanier,
         quantitesPanier,
-        montantTotalAvantRemise,
         montantTotal,
         montantPartiel,
     ]);
-
-    const genererPDF = useCallback(async () => {
+    const generatePDF = useCallback(async () => {
         try {
             console.log("Démarrage de la génération du PDF...");
-
+    
             const { jsPDF } = await import("jspdf");
-            console.log("jsPDF importé avec succès.");
-
             const autoTable = (await import("jspdf-autotable")).default;
-            console.log("jspdf-autotable importé avec succès.");
-
+    
             const doc = new jsPDF();
-            console.log("Instance jsPDF créée.");
-
+    
+            // Ajout du logo
             const logo = require("../../public/logo.png");
             if (logo) {
-                console.log("Logo trouvé, ajout au document.");
-                try {
-                    const imgData = (await import("../../public/logo.png")).default;
-                    doc.addImage(imgData, "JPEG", 15, 10, 40, 20);
-                    console.log("Logo ajouté au PDF.");
-                } catch (error) {
-                    console.error("Erreur lors de l'ajout du logo :", error);
-                }
+                const imgData = (await import("../../public/logo.png")).default;
+                doc.addImage(imgData, "JPEG", 15, 10, 40, 20);
             }
-
-            // Header
+    
+            // En-tête
             doc.setFontSize(16);
             doc.setFont("Helvetica", "bold");
             doc.text("Devis", 195, 30, { align: "right" });
             doc.line(15, 35, 195, 35);
-            console.log("Entête ajoutée au PDF.");
-
-            // Client Information
+    
+            // Informations du client
             doc.setFontSize(12);
-            doc.setFont("Helvetica", "normal");
             doc.text(`CLIENT: ${nomClient}`, 15, 45);
             doc.text(`Adresse: ${adresseClient}`, 15, 50);
             doc.text(`Téléphone: ${telephoneClient}`, 15, 55);
-            doc.text(`Date: ${nouvelleDevis.date}`, 160, 45);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 45);
             doc.line(15, 65, 195, 65);
-            console.log("Informations du client ajoutées au PDF.");
-
-            // Product Table
+    
+            // Table des produits
             const headers = [
-                "Référence",
-                "Description",
-                "Quantité",
-                "P.U. TTC",
-                ...(afficherRemises ? ["Remise (%)"] : []),
-                ...(afficherRemises ? ["P.U.TTC après remise"] : []),
+                "Référence", "Description", "Quantité", "P.U. TTC",
+                afficherRemises ? "Remise (%)" : null,
+                afficherRemises ? "P.U.TTC après remise" : null,
                 "Total TTC"
-            ];
-
-            const productData = nouvelleDevis.products.map((product) => [
-                product.reference,
-                product.description,
-                product.quantity,
-                product.price,
-                ...(afficherRemises ? [`${product.discount} %`] : []),
-                ...(afficherRemises ? [product.priceAfterDiscount.toFixed(2)] : []),
-                product.totalPrice.toFixed(2),
-            ]);
-
-            console.log("En-têtes de tableau définis : ", headers);
-
-
-            try {
-                autoTable(doc, {
-                    startY: 70,
-                    head: [headers],
-                    body: productData,
-                    theme: "striped",
-                });
-                console.log("Tableau des produits ajouté au PDF.");
-            } catch (error) {
-                console.error("Erreur lors de la génération du tableau :", error);
-            }
-
-            const finalY = (doc as any).autoTableEndPosY || 80;
-
-            // Payment Information
+            ].filter(Boolean); // Exclure les nulls si `afficherRemises` est false
+    
+            const productData = articlesPanier.map((product) => {
+                const quantity = quantitesPanier[product.id] || 0;
+                const price = product.price || 0;
+                const discount = remises[product.id] || 0;
+                return [
+                    `P-${product.id.toString().padStart(4, "0")}`,
+                    product.description || "N/A",
+                    quantity,
+                    price.toFixed(2),
+                    afficherRemises ? discount.toString() : null,
+                    afficherRemises ? ((price * (1 - discount / 100)).toFixed(2)) : null,
+                    (price * quantity * (1 - discount / 100)).toFixed(2),
+                ].filter(Boolean);
+            });
+    
+            autoTable(doc, {
+                startY: 70,
+                head: [headers],
+                body: productData,
+                theme: "striped",
+            });
+    
+            const finalY = (doc as any).lastAutoTable.finalY || 80;
+    
+            // Section du paiement
             if (afficherRemisesTableau) {
-                const montantRemise = (montantTotalAvantRemise - montantTotal).toFixed(2);
-                const montantAvecRemise = nouvelleDevis.amountAfterDiscount.toFixed(2);
-
                 const dataPaiement = [
                     ["Montant total sans remise", `${montantTotalAvantRemise.toFixed(2)} TND`],
-                    ["Montant de remise", `${montantRemise} TND`],
-                    ["Montant total avec remise", `${montantAvecRemise} TND`],
+                    ["Montant de remise", `${(montantTotalAvantRemise - montantTotal).toFixed(2)} TND`],
+                    ["Montant total avec remise", `${montantTotal.toFixed(2)} TND`],
                 ];
-
+    
                 autoTable(doc, {
                     startY: finalY + 20,
-                    head: [['Description', 'Montant']],
+                    head: [["Description", "Montant"]],
                     body: dataPaiement,
-                    theme: 'striped',
+                    theme: "striped",
                 });
-
-                const finalTableY = (doc as any).lastAutoTable.finalY;
-                doc.line(15, finalTableY, 195, finalTableY);
             }
-
-
-            // Footer Section
-            const addFooter = (finalY: number) => {
+    
+            // Footer avec les coordonnées
+            const addFooter = (finalY) => {
                 doc.line(15, finalY + 5, 195, finalY + 5);
                 doc.setFontSize(12);
-                doc.setFont("Helvetica", "bold");
-                doc.text(`Net à payer : ${nouvelleDevis.amountAfterDiscount.toFixed(2)} TND`, 140, finalY + 15);
-                doc.setFont("Helvetica", "normal");
-
-                addFooterDetails(finalY + 65);
+                doc.text(`Net à payer : ${montantTotal.toFixed(2)} TND`, 140, finalY + 15);
             };
-
-            const addFooterDetails = (yPosition: number) => {
-                const pageHeight = doc.internal.pageSize.height;
-                if (yPosition + 50 > pageHeight) {
-                    doc.addPage();
-                    yPosition = 15; // Reset Y position
-                }
-
-                doc.line(15, yPosition, 195, yPosition);
-                doc.setFontSize(10);
-                doc.setFont("Helvetica", "normal");
-                doc.text("Ce document n'est reçu qu'une seule fois.", 105, yPosition + 45, { align: "center" });
-
-                // Left side contact info
-                doc.setFont("Helvetica", "bold");
-                doc.text("MAKRAM CHOUIREF", 15, yPosition + 10);
-                doc.setFont("Helvetica", "normal");
-                doc.text("A côté de café Alquds, devant le marché des dattes,", 15, yPosition + 15);
-                doc.text("4214 Jemna-Kébili", 15, yPosition + 20);
-                doc.text("+216 29489741", 15, yPosition + 25);
-                doc.text("Code TVA : 1679384/F", 15, yPosition + 30);
-
-                // Right side contact info
-                doc.setFont("Helvetica", "bold");
-                doc.text("INFORMATIONS DE CONTACT :", 140, yPosition + 10);
-                doc.setFont("Helvetica", "normal");
-                doc.text("Makram Chouiref", 140, yPosition + 15);
-                doc.text("M +216 27197304", 140, yPosition + 20);
-                doc.text("@ chouiref055@gmail.com", 140, yPosition + 25);
-            };
-
-            // Adding Page Numbers
-            const addPageNumbers = () => {
-                const pageCount = doc.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(10);
-                    doc.setFont("Helvetica", "normal");
-                    doc.text(`Page ${i} / ${pageCount}`, 195, doc.internal.pageSize.height - 10, { align: "center" });
-                }
-            };
-
-            const finalYPosition = (doc as any).lastAutoTable.finalY || 0;
-            addFooter(finalYPosition);
-            addPageNumbers();
-
-            // Save the PDF
-            const fileName = `Devis_${nouvelleDevis.date}.pdf`;
+    
+            addFooter((doc as any).lastAutoTable.finalY || 100);
+    
+            // Ajout des numéros de page
+            const pageCount = doc.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.text(`Page ${i} / ${pageCount}`, 195, doc.internal.pageSize.height - 10, { align: "center" });
+            }
+    
+            // Sauvegarde du fichier PDF
+            const fileName = `Devis_${new Date().toLocaleDateString()}.pdf`;
             doc.save(fileName);
             console.log("PDF enregistré avec le nom : ", fileName);
-
+    
         } catch (error) {
             console.error("Erreur lors de la génération du PDF :", error);
             Swal.fire("Erreur", "Erreur lors de la génération du PDF", "error");
         }
-    }, [nouvelleDevis, nomClient, adresseClient, telephoneClient, afficherRemises, afficherRemisesTableau, montantTotalAvantRemise, montantTotal]);
-
-
+    }, [
+        nomClient,
+        adresseClient,
+        telephoneClient,
+        afficherRemises,
+        afficherRemisesTableau,
+        montantTotal,
+        articlesPanier,
+        quantitesPanier,
+        remises
+    ]);
+    
+    
+    
     return (
         <Container>
 
@@ -434,7 +374,7 @@ const Page: React.FC = () => {
                             ...prevQuantites,
                             [id]: nouvelleQuantite,
                         }));
-                    }}
+                     const genererPDF = useCallback(async () => {   }}
                     supprimerArticle={(id: number) => {
                         setArticlesPanier((prevArticles) => prevArticles.filter((article) => article.id !== id));
                     }}

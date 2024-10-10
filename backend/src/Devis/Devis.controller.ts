@@ -1,60 +1,48 @@
 import {
   Controller,
-  Get,
   Post,
-  Patch,
-  Delete,
-  Param,
   Body,
   NotFoundException,
+  Delete,
+  Param,
+  Patch,
 } from '@nestjs/common';
 import { DevisService } from './devis.service';
 import { Devis } from './devis.entity';
+import { ProductCommande } from '../commande/product-commande.entity';
 
 @Controller('devis')
 export class DevisController {
   constructor(private readonly devisService: DevisService) {}
 
-  @Get()
-  async getAllDevis(): Promise<Devis[]> {
-    return this.devisService.getAllDevis();
-  }
-
-  @Get(':id')
-  async getDevisById(@Param('id') id: number): Promise<Devis> {
-    return this.devisService.getDevisById(id);
-  }
-
   @Post()
   async createDevis(
-    @Body()
-    createDevisDto: {
-      clientId: number;
-      products: any[];
-      amountBeforeDiscount: number;
-      amountAfterDiscount: number;
-      amountPaid: number;
-      amountRemaining: number;
-    },
+    @Body('clientId') clientId: number,
+    @Body('products') products: ProductCommande[],
+    @Body('amountBeforeDiscount') amountBeforeDiscount: number,
+    @Body('amountAfterDiscount') amountAfterDiscount: number,
+    @Body('amountPaid') amountPaid: number,
+    @Body('amountRemaining') amountRemaining: number,
   ): Promise<Devis> {
-    const {
-      clientId,
-      products,
-      amountBeforeDiscount,
-      amountAfterDiscount,
-      amountPaid,
-      amountRemaining,
-    } = createDevisDto;
-    return this.devisService.createDevis(
-      clientId,
-      products,
-      amountBeforeDiscount,
-      amountAfterDiscount,
-      amountPaid,
-      amountRemaining,
-    );
+    try {
+      // Appel du service pour créer un devis
+      return await this.devisService.createDevis(
+        clientId,
+        products,
+        amountBeforeDiscount,
+        amountAfterDiscount,
+        amountPaid,
+        amountRemaining,
+      );
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(
+          'Erreur lors de la création du devis : ' + error.message,
+        );
+      }
+      throw error;
+    }
   }
-
   @Patch(':id')
   async updateDevis(
     @Param('id') id: number,

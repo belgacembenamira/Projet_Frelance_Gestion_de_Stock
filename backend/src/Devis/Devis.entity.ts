@@ -19,33 +19,26 @@ export class Devis {
   date: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  totalAmount: number;
+  totalAmount: number; // Total amount after discount
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  amountPaid?: number;
+  amountPaid?: number; // Amount paid by the client
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  amountRemaining?: number;
+  amountRemaining?: number; // Remaining balance to be paid
 
-  @ManyToOne(() => Client, (client) => client.devis)
-  client: Client;
+  @ManyToOne(() => Client, (client) => client.devis, { eager: true })
+  client: Client; // The client associated with the Devis
 
-  @OneToMany(
-    () => ProductCommande,
-    (productCommande) => productCommande.devis,
-    {
-      cascade: true,
-      eager: true,
-    },
-  )
-  products: ProductCommande[];
+  @OneToMany(() => ProductCommande, (productCommande) => productCommande.devis, {
+    cascade: true,
+    eager: true,
+  })
+  products: ProductCommande[]; // List of products in the Devis
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  amountAfterDiscount?: number; // Total amount after applying discounts
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  amountAfterDiscount?: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  amountBeforeDiscount?: number;
+  updatedAt: Date; // Automatically updates the last modification timestamp
 }
