@@ -57,9 +57,9 @@ export const genererPDFRetenue = async (
     // Table for payer identification (A)
     autoTable(doc, {
         startY: 60,
-        head: [["Matricule Fiscal", "Code TVA", "Code Catégorie", "N° Etab Secondaire"]],
+        head: [["Code TVA", "Code Catégorie", "N° Etab Secondaire"]],
         body: [
-            [payerInfo.taxId, payerInfo.codeTVA, payerInfo.categoryCode, payerInfo.secondaryEstablishmentNumber],
+            [ payerInfo.codeTVA, payerInfo.categoryCode, payerInfo.secondaryEstablishmentNumber],
         ],
     });
 

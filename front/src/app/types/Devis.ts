@@ -10,6 +10,13 @@ export interface Devis {
   amountAfterDiscount?: number;
   remise?: number; // Pour le calcul global, si nécessaire
   clientId: number;
-  client: { id: number; name: string; address: string; phone: string };
+  client: {
+    id: number;
+    name: string;
+    address: string;
+    phone: string;
+    montantTotal: number;
+    amountRemaining: number;
+  };
   products: ProductCommande[];
 }

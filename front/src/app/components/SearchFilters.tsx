@@ -28,7 +28,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ searchName, setSearchName
                 onChange={handleNameChange}
                 sx={{ backgroundColor: 'white' }} // Optional: improves readability
             />
-            <TextField
+            {/* <TextField
                 label="Search by Date"
                 type="date"
                 variant="outlined"
@@ -36,7 +36,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ searchName, setSearchName
                 value={searchDate}
                 onChange={handleDateChange}
                 sx={{ backgroundColor: 'white' }} // Optional: improves readability
-            />
+            /> */}
         </Box>
     );
 };

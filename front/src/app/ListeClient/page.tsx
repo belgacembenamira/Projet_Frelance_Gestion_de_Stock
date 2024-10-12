@@ -168,8 +168,8 @@ const Page = () => {
           <Skeleton width={200} height={30} />
         ) : (
           <>
-            <Typography variant="body1">Total à payer : {totalAmountToPay.toFixed(2)} €</Typography>
-            <Typography variant="body1">Total restant à payer : {totalAmountRemaining.toFixed(2)} €</Typography>
+            <Typography variant="body1">Total à payer : {totalAmountToPay.toFixed(2)} TND</Typography>
+            <Typography variant="body1">Total restant à payer : {totalAmountRemaining.toFixed(2)} TND</Typography>
             <Typography variant="body1">Nombre de clients : {clientsTable.length}</Typography>
           </>
         )}

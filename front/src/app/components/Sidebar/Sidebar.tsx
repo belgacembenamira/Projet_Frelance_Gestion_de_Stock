@@ -91,7 +91,7 @@ const Sidebar: React.FC = React.memo(() => {
   ];
 
   const devisItems = [
-    { text: "Devis Commande", icon: <Description />, href: "/devisCommande" },
+    { text: "Devis Commande", icon: <Description />, href: "/devisCommandePage" },
     { text: "Devis Tableau", icon: <Receipt />, href: "/devisTableau" },
   ];
 

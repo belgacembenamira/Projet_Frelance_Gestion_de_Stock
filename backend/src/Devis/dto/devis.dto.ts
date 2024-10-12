@@ -1,76 +1,33 @@
-import {
-  IsOptional,
-  IsNumber,
-  IsArray,
-  IsString,
-  IsNotEmpty,
-} from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { IsOptional, IsNumber, IsArray, IsDateString } from 'class-validator';
 
-// CreateDevisDto allows null values
 export class CreateDevisDto {
-  @IsOptional()
   @IsNumber()
-  clientId?: number | null; // Make it optional
-
   @IsOptional()
+  clientId: number;
+
+  @IsDateString()
+  @IsOptional() // Permet de ne pas fournir de valeur ou d'accepter un champ vide
+  date?: string | null;
+
   @IsArray()
-  products?: ProductCommandeDto[] | null; // Make it optional
+  products: { id: number; quantity: number; discount?: number | null }[];
 
-  @IsOptional()
   @IsNumber()
-  amountBeforeDiscount?: number | null; // Make it optional
+  @IsOptional()
+  amountBeforeDiscount?: number | null;
 
-  @IsOptional()
   @IsNumber()
-  amountAfterDiscount?: number | null; // Make it optional
+  @IsOptional()
+  amountAfterDiscount?: number | null;
 
-  @IsOptional()
   @IsNumber()
-  amountPaid?: number | null; // Make it optional
+  @IsOptional()
+  amountPaid?: number | null;
 
-  @IsOptional()
   @IsNumber()
-  amountRemaining?: number | null; // Make it optional
+  @IsOptional()
+  amountRemaining?: number | null;
 }
 
-// UpdateDevisDto allows null values
-export class UpdateDevisDto {
-  @IsOptional()
-  @IsNumber()
-  clientId?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsArray()
-  products?: ProductCommandeDto[] | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  amountBeforeDiscount?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  amountAfterDiscount?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  amountPaid?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  amountRemaining?: number | null; // Make it optional
-}
-
-// Assuming ProductCommandeDto is defined like this
-class ProductCommandeDto {
-  @IsOptional()
-  @IsNumber()
-  id?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  quantity?: number | null; // Make it optional
-
-  @IsOptional()
-  @IsNumber()
-  discount?: number | null; // Make it optional
-}
+export class UpdateDevisDto extends PartialType(CreateDevisDto) {}
