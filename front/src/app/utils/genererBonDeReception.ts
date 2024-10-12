@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { CommandeFournisseur } from "../types/CommandeFournisseur";
 
 // Utility function to format currency
-const formatCurrency = (amount) => `${amount.toFixed(2)} TND`; // Format with two decimal places
+const formatCurrency = (amount: number) => `${amount.toFixed(2)} TND`; // Format with two decimal places
 
 export const genererBonDeReception = async (
   commande: CommandeFournisseur,

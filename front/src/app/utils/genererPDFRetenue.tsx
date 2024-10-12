@@ -22,6 +22,7 @@ interface BeneficiaryInfo {
     codeTva: string;
     categoryCode: string;
     secondaryEstablishmentNumber: string;
+    matriculeFiscal	:string;
 }
 
 interface InvoiceDetails {
@@ -59,7 +60,7 @@ export const genererPDFRetenue = async (
         startY: 60,
         head: [["Code TVA", "Code Catégorie", "N° Etab Secondaire"]],
         body: [
-            [ payerInfo.codeTVA, payerInfo.categoryCode, payerInfo.secondaryEstablishmentNumber],
+            [payerInfo.matriculeFiscal, payerInfo.categoryCode, payerInfo.secondaryEstablishmentNumber],
         ],
     });
 
@@ -104,6 +105,6 @@ export const genererPDFRetenue = async (
     // doc.text(`Tél: ${payerInfo.contactPhone}`, 15, (doc as any).lastAutoTable.finalY + 65);
 
     // Save the PDF
-const fileName = `Certificat_de_retenue_${Date.now()}_${payerInfo.name}.pdf`;
+    const fileName = `Certificat_de_retenue_${Date.now()}_${payerInfo.name}.pdf`;
     doc.save(fileName);
 };

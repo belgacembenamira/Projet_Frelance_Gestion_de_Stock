@@ -240,7 +240,8 @@ const CreateCommandeFournisseur = () => {
                         contactPhone: supplierId.contactPhone ?? '93287025', // Provide a default or actual contactPhone
                         codeTVA: supplierId.codeTVA ?? '', // Provide a default or actual codeTVA
                         categoryCode: supplierId.categoryCode ?? '', // Provide a default or actual categoryCode
-                        secondaryEstablishmentNumber: supplierId.secondaryEstablishmentNumber ?? '' // Provide a default or actual secondaryEstablishmentNumber
+                        secondaryEstablishmentNumber: supplierId.secondaryEstablishmentNumber ?? '', // Provide a default or actual secondaryEstablishmentNumber
+                        matriculeFiscal: supplierId.matriculeFiscal ?? '', // Provide a default or actual matriculeFiscal
                     },
                     {
                         name: "makrem chourief",
@@ -349,91 +350,91 @@ const CreateCommandeFournisseur = () => {
 
                 {/* Manual Product Addition */}
                 <Grid item xs={12}>
-    <Typography variant="h6" gutterBottom>
-        Ajouter un produit manuellement
-    </Typography>
-    
-    <TextField
-        label="Description"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.description}
-        onChange={(e) => setManualProduct({ ...manualProduct, description: e.target.value })}
-    />
-    
-    <TextField
-        label="Référence"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.reference}
-        onChange={(e) => setManualProduct({ ...manualProduct, reference: e.target.value })}
-    />
-    
-    <TextField
-        label="Prix Fournisseur (TND)"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.supplierPrice}
-        onChange={(e) => setManualProduct({ 
-            ...manualProduct, 
-            supplierPrice: e.target.value ? parseFloat(e.target.value) : '' 
-        })}
-    />
-    
-    <TextField
-        label="Prix de Vente (TND)"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.price.toString().replace('.', ',')} // Afficher avec une virgule
-        onChange={(e) => setManualProduct({ 
-            ...manualProduct, 
-            price: parseFloat(e.target.value.replace(',', '.')) 
-        })}
-    />
-    
-    <TextField
-        label="Taux de Retenue (%)"
-        variant="outlined"
-        fullWidth
-        value={(taxRate * 100).toString().replace('.', ',')} // Afficher avec une virgule
-        onChange={(e) => {
-            const value = e.target.value.replace(',', '.');
-            const parsedValue = parseFloat(value) / 100;
-            if (!isNaN(parsedValue)) {
-                setTaxRate(parsedValue);
-            }
-        }}
-    />
-    
-    <TextField
-        label="Unité"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.unite}
-        onChange={(e) => setManualProduct({ ...manualProduct, unite: e.target.value })}
-    />
-    
-    <TextField
-        label="Quantité"
-        type="number"
-        variant="outlined"
-        fullWidth
-        value={manualProduct.quantity}
-        onChange={(e) => setManualProduct({ 
-            ...manualProduct, 
-            quantity: e.target.value ? parseInt(e.target.value, 10) : '' 
-        })}
-    />
-    
-    <Button
-        variant="contained"
-        color="primary"
-        onClick={handleManualAddProduct}
-        style={{ width: '200px', margin: '0 10px' }}
-    >
-        Ajouter Produit
-    </Button>
-</Grid>
+                    <Typography variant="h6" gutterBottom>
+                        Ajouter un produit manuellement
+                    </Typography>
+
+                    <TextField
+                        label="Description"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.description}
+                        onChange={(e) => setManualProduct({ ...manualProduct, description: e.target.value })}
+                    />
+
+                    <TextField
+                        label="Référence"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.reference}
+                        onChange={(e) => setManualProduct({ ...manualProduct, reference: e.target.value })}
+                    />
+
+                    <TextField
+                        label="Prix Fournisseur (TND)"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.supplierPrice}
+                        onChange={(e) => setManualProduct({
+                            ...manualProduct,
+                            supplierPrice: e.target.value ? parseFloat(e.target.value) : ''
+                        })}
+                    />
+
+                    <TextField
+                        label="Prix de Vente (TND)"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.price.toString().replace('.', ',')} // Afficher avec une virgule
+                        onChange={(e) => setManualProduct({
+                            ...manualProduct,
+                            price: parseFloat(e.target.value.replace(',', '.'))
+                        })}
+                    />
+
+                    <TextField
+                        label="Taux de Retenue (%)"
+                        variant="outlined"
+                        fullWidth
+                        value={(taxRate * 100).toString().replace('.', ',')} // Afficher avec une virgule
+                        onChange={(e) => {
+                            const value = e.target.value.replace(',', '.');
+                            const parsedValue = parseFloat(value) / 100;
+                            if (!isNaN(parsedValue)) {
+                                setTaxRate(parsedValue);
+                            }
+                        }}
+                    />
+
+                    <TextField
+                        label="Unité"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.unite}
+                        onChange={(e) => setManualProduct({ ...manualProduct, unite: e.target.value })}
+                    />
+
+                    <TextField
+                        label="Quantité"
+                        type="number"
+                        variant="outlined"
+                        fullWidth
+                        value={manualProduct.quantity}
+                        onChange={(e) => setManualProduct({
+                            ...manualProduct,
+                            quantity: e.target.value ? parseInt(e.target.value, 10) : ''
+                        })}
+                    />
+
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleManualAddProduct}
+                        style={{ width: '200px', margin: '0 10px' }}
+                    >
+                        Ajouter Produit
+                    </Button>
+                </Grid>
 
 
                 {/* Submission and Action Buttons */}
