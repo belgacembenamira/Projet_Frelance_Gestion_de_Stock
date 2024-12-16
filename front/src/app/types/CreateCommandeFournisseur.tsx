@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useReducer } from 'react';
 import {
     Container,
@@ -244,7 +245,7 @@ const CreateCommandeFournisseur = () => {
                         matriculeFiscal: supplierId.matriculeFiscal ?? '', // Provide a default or actual matriculeFiscal
                     },
                     {
-                        name: "makrem chourief",
+                        name: "Makram ben hassen chouiref",
                         address: "jemna kebili",
                         taxId: "1679384/F", // Provide a default or actual taxId
                         codeTva: "1679384/F", // Provide a default or actual codeTVA
